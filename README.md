@@ -197,6 +197,9 @@ The application provides REST API endpoints for frontend-backend communication. 
 - `GET /api/sections/{sectionId}` - Get details of a specific section
 - `GET /api/sections/{sectionId}/topics` - List all topics within a section
 
+**User Progress**
+- `GET /api/user-progress` - Get user progress overview with optional filters ([docs](docs/api/user-progress-endpoint.md))
+
 For complete API documentation, see [.ai/api-plan.md](.ai/api-plan.md).
 For implementation status, see [.ai/api-implementation-status.md](.ai/api-implementation-status.md).
 
@@ -219,6 +222,7 @@ npm run dev
 - `test-sections-endpoint.sh` - Tests sections listing endpoint
 - `test-profile-endpoint.sh` - Tests profile endpoint
 - `test-session-endpoint.sh` - Tests session endpoints
+- `test-user-progress-endpoint.sh` - Tests user progress endpoint with filters
 
 ## Project Scope
 
