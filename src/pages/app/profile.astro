@@ -1,0 +1,23 @@
+---
+// ============================================================================
+// Profile Page
+// ============================================================================
+// User profile and settings page at /app/profile
+
+import Layout from '@/layouts/Layout.astro';
+import { ProfileScreen } from '@/components/profile/ProfileScreen';
+---
+
+<Layout title="Profil — AI Tutor">
+  <main>
+    <ProfileScreen client:load />
+  </main>
+</Layout>
+
+<style>
+  main {
+    min-height: 100vh;
+    background: hsl(var(--background));
+  }
+</style>
+

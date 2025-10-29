@@ -1,0 +1,27 @@
+---
+// ============================================================================
+// Login Page
+// ============================================================================
+// User login page with email and password authentication
+
+import Layout from '@/layouts/Layout.astro';
+import { LoginForm } from '@/components/auth/LoginForm';
+
+// Check if user is already authenticated
+const { data: { session } } = await Astro.locals.supabase.auth.getSession();
+
+// Redirect authenticated users to dashboard
+if (session) {
+  const redirectTo = Astro.url.searchParams.get('redirect') || '/app/dashboard';
+  return Astro.redirect(redirectTo);
+}
+
+// Get redirect parameter from query string for post-login redirect
+const redirectTo = Astro.url.searchParams.get('redirect') || '/app/dashboard';
+---
+
+<Layout title="Logowanie — AI Tutor">
+  <main class="min-h-screen flex items-center justify-center bg-background p-4">
+    <LoginForm client:load redirectTo={redirectTo} />
+  </main>
+</Layout>

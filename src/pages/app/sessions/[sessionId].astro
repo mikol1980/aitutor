@@ -1,0 +1,49 @@
+---
+// ============================================================================
+// Session View Page
+// ============================================================================
+// Learning session page at /app/sessions/{sessionId}
+// Displays conversation with AI tutor, message history, and visualizations
+
+import Layout from '@/layouts/Layout.astro';
+import { SessionScreen } from '@/components/session/SessionScreen';
+
+// TEMPORARY: Set to true to allow viewing page without authentication (uses mock data)
+const USE_MOCK_DATA = true;
+
+// Check if user is authenticated (skip if using mock data)
+if (!USE_MOCK_DATA) {
+  const { data: { session } } = await Astro.locals.supabase.auth.getSession();
+
+  if (!session) {
+    return Astro.redirect('/auth/login');
+  }
+}
+
+// Extract sessionId from params
+const { sessionId } = Astro.params;
+
+// Basic validation - check if sessionId exists
+if (!sessionId) {
+  return Astro.redirect('/app/dashboard');
+}
+
+// UUID validation (basic regex check)
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+if (!uuidRegex.test(sessionId)) {
+  return Astro.redirect('/app/dashboard');
+}
+---
+
+<Layout title="Sesja Nauki — AI Tutor">
+  <main>
+    <SessionScreen client:load sessionId={sessionId} />
+  </main>
+</Layout>
+
+<style>
+  main {
+    min-height: 100vh;
+    background: hsl(var(--background));
+  }
+</style>

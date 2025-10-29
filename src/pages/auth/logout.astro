@@ -1,0 +1,16 @@
+---
+// ============================================================================
+// Logout Page
+// ============================================================================
+// Server-side logout handler
+
+// Sign out user
+await Astro.locals.supabase.auth.signOut();
+
+// Clear session cookies
+Astro.cookies.delete('sb-access-token', { path: '/' });
+Astro.cookies.delete('sb-refresh-token', { path: '/' });
+
+// Redirect to home page
+return Astro.redirect('/');
+---

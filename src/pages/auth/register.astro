@@ -1,0 +1,23 @@
+---
+// ============================================================================
+// Register Page
+// ============================================================================
+// User registration page
+
+import Layout from '@/layouts/Layout.astro';
+import { RegisterForm } from '@/components/auth/RegisterForm';
+
+// Check if user is already authenticated
+const { data: { session } } = await Astro.locals.supabase.auth.getSession();
+
+// Redirect authenticated users to dashboard
+if (session) {
+  return Astro.redirect('/app/dashboard');
+}
+---
+
+<Layout title="Rejestracja — AI Tutor">
+  <main class="min-h-screen flex items-center justify-center bg-background p-4">
+    <RegisterForm client:load />
+  </main>
+</Layout>
