@@ -6,8 +6,26 @@ This directory contains all REST API endpoints for the AI Tutor application.
 
 ```
 src/pages/api/
-├── profile.ts          # User profile endpoints
-└── README.md          # This file
+├── auth/
+│   ├── login.ts             # Authentication - login
+│   └── register.ts          # Authentication - register
+├── sections/
+│   ├── [sectionId].ts       # Get section details
+│   └── [sectionId]/
+│       └── topics.ts        # Get topics for section
+├── topics/
+│   └── [topicId]/
+│       ├── index.ts         # Get topic details
+│       ├── dependencies.ts  # Get topic dependencies
+│       └── content.ts       # Get learning content for topic
+├── sessions/
+│   └── [sessionId]/
+│       ├── index.ts         # Get session details
+│       ├── messages.ts      # Get/create session messages
+│       └── end.ts           # End learning session
+├── profile.ts               # User profile endpoints
+├── sections.ts              # List all sections
+└── README.md                # This file
 ```
 
 ## Available Endpoints
@@ -48,24 +66,193 @@ Authorization: Bearer <jwt_token>
 
 ---
 
+### Topic Management
+
+#### GET /api/topics/{topicId}
+Returns detailed information about a specific topic.
+
+**Authentication:** Required (JWT Bearer token)
+
+**Parameters:**
+- `topicId` (path) - UUID of the topic to retrieve
+
+**Request:**
+```bash
+GET /api/topics/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer <jwt_token>
+```
+
+**Success Response (200):**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "section_id": "660e8400-e29b-41d4-a716-446655440000",
+  "title": "Funkcje liniowe",
+  "description": "Podstawy funkcji liniowych y = ax + b",
+  "display_order": 1,
+  "created_at": "2025-10-13T10:00:00Z"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid topic ID format
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Topic not found
+- `500 Internal Server Error` - Server error
+
+---
+
+#### GET /api/topics/{topicId}/dependencies
+Returns the list of prerequisite topics (dependencies) for a specific topic.
+
+**Authentication:** Required (JWT Bearer token)
+
+**Parameters:**
+- `topicId` (path) - UUID of the topic
+
+**Request:**
+```bash
+GET /api/topics/550e8400-e29b-41d4-a716-446655440000/dependencies
+Authorization: Bearer <jwt_token>
+```
+
+**Success Response (200):**
+```json
+{
+  "topic_id": "550e8400-e29b-41d4-a716-446655440000",
+  "dependencies": [
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440001",
+      "title": "Liczby rzeczywiste",
+      "description": "Podstawowe operacje na liczbach rzeczywistych",
+      "section_id": "770e8400-e29b-41d4-a716-446655440000",
+      "section_title": "Algebra"
+    }
+  ]
+}
+```
+
+**Success Response - No dependencies (200):**
+```json
+{
+  "topic_id": "550e8400-e29b-41d4-a716-446655440000",
+  "dependencies": []
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid topic ID format
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Topic not found
+- `500 Internal Server Error` - Server error
+
+**Implementation Details:**
+- Returns empty array if topic has no prerequisites
+- Includes section information for each dependency via JOIN
+- Dependencies indicate required prior knowledge
+
+---
+
+#### GET /api/topics/{topicId}/content
+Returns learning content (materials) for a specific topic with optional filtering.
+
+**Authentication:** Required (JWT Bearer token)
+
+**Parameters:**
+- `topicId` (path) - UUID of the topic
+- `usage_type` (query, optional) - Filter by content type: `explanation`, `exercise`, or `diagnostic_question`
+- `is_verified` (query, optional) - Filter by verification status: `true` or `false`
+
+**Request Examples:**
+```bash
+# Get all content
+GET /api/topics/550e8400-e29b-41d4-a716-446655440000/content
+Authorization: Bearer <jwt_token>
+
+# Get only verified explanations
+GET /api/topics/550e8400-e29b-41d4-a716-446655440000/content?usage_type=explanation&is_verified=true
+
+# Get all exercises
+GET /api/topics/550e8400-e29b-41d4-a716-446655440000/content?usage_type=exercise
+```
+
+**Success Response (200):**
+```json
+{
+  "content": [
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440000",
+      "topic_id": "550e8400-e29b-41d4-a716-446655440000",
+      "usage_type": "explanation",
+      "content": {
+        "type": "text",
+        "text": "Funkcja liniowa to funkcja postaci y = ax + b..."
+      },
+      "is_verified": true,
+      "created_at": "2025-10-13T10:00:00Z"
+    }
+  ]
+}
+```
+
+**Success Response - No content (200):**
+```json
+{
+  "content": []
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid topic ID or query parameters
+  - Invalid `usage_type` value
+  - Invalid `is_verified` value (must be 'true' or 'false')
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Topic not found
+- `500 Internal Server Error` - Server error
+
+**Implementation Details:**
+- All filters are optional
+- Filters can be combined (e.g., verified exercises only)
+- Returns empty array if no content matches filters
+- Content is stored as JSONB in database (flexible structure)
+
+---
+
 ## Development
 
 ### Testing Endpoints
 
-Use the provided test script:
+Use the provided test scripts:
 
 ```bash
-# Test without token (tests error cases)
-./test-profile-endpoint.sh
-
-# Test with valid token (tests success case)
+# Test profile endpoint
 ./test-profile-endpoint.sh YOUR_JWT_TOKEN
+
+# Test sections endpoints
+./test-sections-endpoint.sh YOUR_JWT_TOKEN
+
+# Test sessions endpoints
+./test-session-endpoint.sh YOUR_JWT_TOKEN SESSION_ID
+
+# Test topics endpoints (all three endpoints)
+./test-topics-endpoint.sh YOUR_JWT_TOKEN TOPIC_ID
 ```
 
 Or use curl directly:
 
 ```bash
-curl -X GET http://localhost:4321/api/profile \
+# Get topic details
+curl -X GET http://localhost:4321/api/topics/TOPIC_ID \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json"
+
+# Get topic dependencies
+curl -X GET http://localhost:4321/api/topics/TOPIC_ID/dependencies \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json"
+
+# Get topic content with filters
+curl -X GET "http://localhost:4321/api/topics/TOPIC_ID/content?usage_type=explanation&is_verified=true" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json"
 ```
