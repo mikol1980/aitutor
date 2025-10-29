@@ -34,6 +34,139 @@ export type Database = {
   }
   public: {
     Tables: {
+      diagnostic_test_attempts: {
+        Row: {
+          id: string
+          user_id: string
+          diagnostic_test_id: string
+          score: number
+          completed_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          diagnostic_test_id: string
+          score: number
+          completed_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          diagnostic_test_id?: string
+          score?: number
+          completed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_test_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diagnostic_test_attempts_diagnostic_test_id_fkey"
+            columns: ["diagnostic_test_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_tests"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      diagnostic_test_learning_content: {
+        Row: {
+          test_id: string
+          content_id: string
+        }
+        Insert: {
+          test_id: string
+          content_id: string
+        }
+        Update: {
+          test_id?: string
+          content_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_test_learning_content_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_tests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diagnostic_test_learning_content_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "learning_content"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      diagnostic_tests: {
+        Row: {
+          id: string
+          section_id: string
+          title: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          section_id: string
+          title: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          section_id?: string
+          title?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_tests_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: true
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      learning_content: {
+        Row: {
+          id: string
+          topic_id: string | null
+          usage_type: Database["public"]["Enums"]["content_usage_type"]
+          content: Json
+          is_verified: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          topic_id?: string | null
+          usage_type: Database["public"]["Enums"]["content_usage_type"]
+          content: Json
+          is_verified?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          topic_id?: string | null
+          usage_type?: Database["public"]["Enums"]["content_usage_type"]
+          content?: Json
+          is_verified?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_content_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       profiles: {
         Row: {
           id: string
@@ -57,6 +190,247 @@ export type Database = {
           created_at?: string
         }
         Relationships: []
+      }
+      sections: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          display_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          display_order: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          display_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      session_messages: {
+        Row: {
+          id: string
+          session_id: string
+          sender: Database["public"]["Enums"]["message_sender"]
+          content: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          sender: Database["public"]["Enums"]["message_sender"]
+          content: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          sender?: Database["public"]["Enums"]["message_sender"]
+          content?: Json
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      sessions: {
+        Row: {
+          id: string
+          user_id: string
+          topic_id: string | null
+          started_at: string
+          ended_at: string | null
+          ai_summary: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          topic_id?: string | null
+          started_at?: string
+          ended_at?: string | null
+          ai_summary?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          topic_id?: string | null
+          started_at?: string
+          ended_at?: string | null
+          ai_summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      topic_dependencies: {
+        Row: {
+          topic_id: string
+          dependency_id: string
+        }
+        Insert: {
+          topic_id: string
+          dependency_id: string
+        }
+        Update: {
+          topic_id?: string
+          dependency_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_dependencies_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_dependencies_dependency_id_fkey"
+            columns: ["dependency_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      topics: {
+        Row: {
+          id: string
+          section_id: string
+          title: string
+          description: string | null
+          display_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          section_id: string
+          title: string
+          description?: string | null
+          display_order: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          section_id?: string
+          title?: string
+          description?: string | null
+          display_order?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_answers: {
+        Row: {
+          id: string
+          attempt_id: string
+          content_id: string
+          answer_content: Json
+          is_correct: boolean
+        }
+        Insert: {
+          id?: string
+          attempt_id: string
+          content_id: string
+          answer_content: Json
+          is_correct: boolean
+        }
+        Update: {
+          id?: string
+          attempt_id?: string
+          content_id?: string
+          answer_content?: Json
+          is_correct?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_answers_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_test_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_answers_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "learning_content"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_progress: {
+        Row: {
+          user_id: string
+          topic_id: string
+          status: Database["public"]["Enums"]["user_progress_status"]
+          score: number | null
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          topic_id: string
+          status?: Database["public"]["Enums"]["user_progress_status"]
+          score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          topic_id?: string
+          status?: Database["public"]["Enums"]["user_progress_status"]
+          score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
