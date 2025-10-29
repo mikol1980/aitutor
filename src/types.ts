@@ -6,7 +6,7 @@
 // and aligned with the API specification.
 // ============================================================================
 
-import type { Database } from './db/database.types';
+import type { Database } from "./db/database.types";
 
 // ============================================================================
 // Database Entity Base Types
@@ -57,7 +57,7 @@ export interface TopicEntity {
  * Content usage types - enum from database
  * Source: content_usage_type ENUM
  */
-export type ContentUsageType = 'explanation' | 'exercise' | 'diagnostic_question';
+export type ContentUsageType = "explanation" | "exercise" | "diagnostic_question";
 
 /**
  * Learning content entity - educational materials
@@ -87,7 +87,7 @@ export interface DiagnosticTestEntity {
  * User progress status - enum from database
  * Source: user_progress_status ENUM
  */
-export type UserProgressStatus = 'not_started' | 'in_progress' | 'completed';
+export type UserProgressStatus = "not_started" | "in_progress" | "completed";
 
 /**
  * Diagnostic test attempt entity
@@ -117,7 +117,7 @@ export interface UserAnswerEntity {
  * Message sender - enum from database
  * Source: message_sender ENUM
  */
-export type MessageSender = 'user' | 'ai';
+export type MessageSender = "user" | "ai";
 
 /**
  * Session entity
@@ -307,7 +307,7 @@ export interface ExerciseContent {
  */
 export interface DiagnosticQuestionContent {
   question: string;
-  type?: 'multiple_choice' | 'short_answer';
+  type?: "multiple_choice" | "short_answer";
   options?: string[]; // For multiple choice
   correct_answer: string | number; // Index for multiple choice, value for short answer
   correct_answer_index?: number; // Alternative field for multiple choice
@@ -488,7 +488,7 @@ export interface SessionListResponseDTO {
  * Message content structure for text messages
  */
 export interface TextMessageContent {
-  type: 'text';
+  type: "text";
   text: string;
   audio_url?: string; // Optional audio URL for AI responses
 }
@@ -652,12 +652,12 @@ export interface ApiErrorResponseDTO {
 /**
  * Omit created_at and id for creation commands
  */
-export type CreateEntityCommand<T> = Omit<T, 'id' | 'created_at'>;
+export type CreateEntityCommand<T> = Omit<T, "id" | "created_at">;
 
 /**
  * Partial update command - makes all fields optional except id
  */
-export type UpdateEntityCommand<T> = Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>;
+export type UpdateEntityCommand<T> = Partial<Omit<T, "id" | "created_at" | "updated_at">>;
 
 /**
  * Generic list response wrapper
@@ -675,23 +675,94 @@ export interface ListResponseDTO<T> {
 /**
  * Type guard for multiple choice answer content
  */
-export function isMultipleChoiceAnswer(
-  content: AnswerContent
-): content is MultipleChoiceAnswerContent {
-  return 'selected_option_index' in content;
+export function isMultipleChoiceAnswer(content: AnswerContent): content is MultipleChoiceAnswerContent {
+  return "selected_option_index" in content;
 }
 
 /**
  * Type guard for short answer content
  */
 export function isShortAnswer(content: AnswerContent): content is ShortAnswerContent {
-  return 'answer' in content;
+  return "answer" in content;
 }
 
 /**
  * Type guard for text message content
  */
 export function isTextMessageContent(content: MessageContent): content is TextMessageContent {
-  return content.type === 'text';
+  return content.type === "text";
 }
 
+// ============================================================================
+// 13. ONBOARDING VIEW TYPES
+// ============================================================================
+
+/**
+ * Onboarding step index (0-based)
+ */
+export type OnboardingStep = 0 | 1 | 2 | 3;
+
+/**
+ * Onboarding state view model
+ */
+export interface OnboardingStateVM {
+  currentStep: OnboardingStep;
+  totalSteps: 4;
+  canSkip: boolean; // currentStep >= 2
+  isSavingProfile: boolean;
+  hasConsentToFinish: boolean; // checkbox/dialog
+}
+
+/**
+ * Step descriptor for onboarding flow
+ */
+export interface StepDescriptorVM {
+  id: OnboardingStep;
+  title: string;
+  description?: string;
+  ariaLabel?: string;
+}
+
+/**
+ * API status type
+ */
+export type ApiStatus = "idle" | "loading" | "success" | "error";
+
+/**
+ * Generic API state view model
+ */
+export interface ApiStateVM<T = unknown> {
+  status: ApiStatus;
+  data?: T;
+  error?: { code?: string; message: string };
+}
+
+/**
+ * Message item for conversation demo
+ */
+export interface MessageItemVM {
+  sender: "user" | "ai";
+  text: string;
+}
+
+/**
+ * Formula preview for demo
+ */
+export interface FormulaPreviewVM {
+  raw: string;
+  rendered?: string; // KaTeX/MathJax in future
+}
+
+/**
+ * Progress legend item
+ */
+export interface ProgressLegendItemVM {
+  label: string; // e.g., "Ukończone"
+  colorClass: string; // Tailwind token
+  ariaLabel: string;
+}
+
+/**
+ * Storage key constant for onboarding
+ */
+export const ONBOARDING_STORAGE_KEY = "onboarding.step";

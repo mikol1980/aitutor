@@ -1,0 +1,24 @@
+---
+// ============================================================================
+// Onboarding Page
+// ============================================================================
+// Interactive tutorial for new users at /onboarding
+// Shows key features: AI conversation, formula input, progress map
+// Runs automatically after first login when has_completed_tutorial = false
+
+import Layout from "@/layouts/Layout.astro";
+import { OnboardingApp } from "@/components/onboarding/OnboardingApp";
+---
+
+<Layout title="Samouczek — AI Tutor">
+  <main>
+    <OnboardingApp client:load />
+  </main>
+</Layout>
+
+<style>
+  main {
+    min-height: 100vh;
+    background: hsl(var(--background));
+  }
+</style>
